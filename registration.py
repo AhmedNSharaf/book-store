@@ -86,7 +86,7 @@ def admin_sign_in():
                 admin_sign_in_window.destroy()
                 create_management_page()
             else:
-                print("Invalid credentials. Try again.")
+                print("Invalid username or password. Try again.")
                 messagebox.showerror("error","Invalid credentials. Try again.")
 
         sign_in_btn = tk.Button(admin_sign_in_window, text="Sign In", font=("Arial", 12), bg="#FF5722", fg="white", width=20, command=handle_admin_sign_in)
@@ -131,7 +131,7 @@ def user_sign_in():
                 print("User Sign In successful")
                 open_main_app()
             else:
-                messagebox.showerror("error","Invalid credentials. Try again.")
+                messagebox.showerror("error","Invalid username or password. Try again.")
                 print("Invalid credentials. Try again.")
                 
 
@@ -318,7 +318,7 @@ def create_main_app():
         )
         btn.image = icon_tk  # Keep a reference to prevent garbage collection
         btn.pack(fill="x", pady=5)
-
+    
     # Main Content
     popular_books = [
         {"title": "It Starts with Us", "author": "Colleen Hoover", "rating": 4, "image": "books-piled-.png"},

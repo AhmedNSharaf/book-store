@@ -56,29 +56,79 @@ def show_cart_page(main_frame):
 
     # Function to add books to the cart
     def add_to_cart():
-        isbn = simpledialog.askstring("Add to Cart", "Enter the ISBN of the book:")
-        if isbn:
+        # Create a popup window for selecting a book
+        cart_window = tk.Toplevel()
+        cart_window.title("Add to Cart")
+        cart_window.geometry("400x250")
+        cart_window.configure(bg="#FAF9F6")
+    
+        tk.Label(cart_window, text="Select a book to add to the cart:", font=("Arial", 12), bg="#FAF9F6").pack(pady=10)
+    
+        # Connect to the database to fetch books
+        conn = sqlite3.connect('user_data.db')
+        cursor = conn.cursor()
+        cursor.execute('SELECT ISBN, Title, Price FROM Books')
+        books = cursor.fetchall()
+        conn.close()
+    
+        # Create a dictionary to map book titles to their ISBN and price
+        book_dict = {book[1]: (book[0], book[2]) for book in books}
+    
+        # Create a dropdown list with book titles
+        book_dropdown = ttk.Combobox(cart_window, state="readonly", font=("Arial", 12), width=30)
+        book_dropdown['values'] = list(book_dict.keys())
+        book_dropdown.pack(pady=10)
+    
+        # Input field for quantity
+        tk.Label(cart_window, text="Enter Quantity:", font=("Arial", 12), bg="#FAF9F6").pack(pady=5)
+        quantity_entry = tk.Entry(cart_window, font=("Arial", 12), width=10, justify="center")
+        quantity_entry.pack(pady=5)
+    
+        def handle_add_to_cart():
+            selected_title = book_dropdown.get()
+            quantity = quantity_entry.get()
+    
+            if not selected_title:
+                messagebox.showerror("Error", "Please select a book.")
+                return
+    
+            if not quantity.isdigit() or int(quantity) <= 0:
+                messagebox.showerror("Error", "Please enter a valid quantity (greater than 0).")
+                return
+    
+            quantity = int(quantity)
+            isbn, price = book_dict[selected_title]
+    
             conn = sqlite3.connect('user_data.db')
             cursor = conn.cursor()
-            # Check if the book exists
-            cursor.execute('SELECT Title, Price FROM Books WHERE ISBN = ?', (isbn,))
-            book = cursor.fetchone()
-            if book:
-                title, price = book
-                # Check if the book is already in the cart
-                cursor.execute('SELECT Quantity FROM Cart WHERE ISBN = ?', (isbn,))
-                existing = cursor.fetchone()
-                if existing:
-                    cursor.execute('UPDATE Cart SET Quantity = Quantity + 1 WHERE ISBN = ?', (isbn,))
-                else:
-                    cursor.execute('INSERT INTO Cart (ISBN, Title, Quantity, Price) VALUES (?, ?, ?, ?)',
-                        (isbn, title, 1, price))
-                conn.commit()
-                messagebox.showinfo("Success", f"'{title}' has been added to your cart.")
+    
+            # Check if the book is already in the cart
+            cursor.execute('SELECT Quantity FROM Cart WHERE ISBN = ?', (isbn,))
+            existing = cursor.fetchone()
+            if existing:
+                # Update quantity if the book is already in the cart
+                cursor.execute('UPDATE Cart SET Quantity = Quantity + ? WHERE ISBN = ?', (quantity, isbn))
             else:
-                messagebox.showerror("Error", "Book not found.")
+                # Add the book to the cart with the specified quantity
+                cursor.execute('INSERT INTO Cart (ISBN, Title, Quantity, Price) VALUES (?, ?, ?, ?)',
+                               (isbn, selected_title, quantity, price))
+            conn.commit()
             conn.close()
-            load_cart()
+    
+            messagebox.showinfo("Success", f"'{selected_title}' has been added to your cart (Quantity: {quantity}).")
+            cart_window.destroy()  # Close the pop-up window
+            load_cart()  # Refresh the cart display
+    
+        # Add button to confirm selection
+        tk.Button(cart_window, text="Add to Cart", font=("Arial", 12), bg="#4CAF50", fg="white", command=handle_add_to_cart).pack(pady=20)
+    
+        # Center the popup window
+        cart_window.update_idletasks()
+        width = cart_window.winfo_width()
+        height = cart_window.winfo_height()
+        x = (cart_window.winfo_screenwidth() // 2) - (width // 2)
+        y = (cart_window.winfo_screenheight() // 2) - (height // 2)
+        cart_window.geometry(f"{width}x{height}+{x}+{y}")
 
     # Function to remove books from the cart
     def remove_from_cart():

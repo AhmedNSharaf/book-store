@@ -234,12 +234,15 @@ def create_management_page():
     global control_window
     control_window = tk.Tk()
     control_window.title("Database Management")
-    center_window(control_window, 450, 450)
+    center_window(control_window, 500, 500)
 
     button_width = 20  # Set a consistent width for all buttons
     button_height = 2  # Set a consistent height for better aesthetics
     pady = 10  # Set padding between buttons
-
+    def logout():
+        control_window.destroy()
+        from registration import create_registration_screen
+        create_registration_screen()
     tk.Button(control_window, text="Add Book", width=button_width, height=button_height, command=add_book).pack(pady=pady)
     tk.Button(control_window, text="Remove Book", width=button_width, height=button_height, command=remove_book).pack(pady=pady)
     tk.Button(control_window, text="Update Book", width=button_width, height=button_height, command=update_book).pack(pady=pady)
@@ -247,6 +250,8 @@ def create_management_page():
     tk.Button(control_window, text="Delete User", width=button_width, height=button_height, command=delete_user).pack(pady=pady)
     tk.Button(control_window, text="Create Order", width=button_width, height=button_height, command=create_order).pack(pady=pady)
     tk.Button(control_window, text="Create Admin User", width=button_width, height=button_height, command=create_admin_user).pack(pady=pady)
+    tk.Button(control_window, text="Log Out",bg="black",fg="white", width=button_width, height=button_height, command=logout).pack(pady=pady)
+    
 
     control_window.mainloop()
 
