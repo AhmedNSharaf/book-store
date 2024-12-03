@@ -258,13 +258,78 @@ def log_out():
     from registration import create_registration_screen
     create_registration_screen()  # Open the registration screen
 
+def show_book_details(book):
+    """Show a popup window with the book's details."""
+    book_window = tk.Toplevel(root)
+    book_window.title(f"{book['title']} Details")
+    book_window.geometry("400x300")
+    book_window.configure(bg="#FAF9F6")
+
+    # Book Title
+    tk.Label(book_window, text=book['title'], font=("Arial", 16, "bold"), bg="#FAF9F6").pack(pady=10)
+
+    # Book Author
+    tk.Label(book_window, text=f"Author: {book['author']}", font=("Arial", 12), bg="#FAF9F6").pack(pady=5)
+
+    # Book Rating
+    tk.Label(book_window, text=f"Rating: {'⭐' * book['rating']}", font=("Arial", 12), bg="#FAF9F6").pack(pady=5)
+
+    # Book Image
+    try:
+        book_img = Image.open(book['image']).resize((150, 150))
+        book_img_tk = ImageTk.PhotoImage(book_img)
+        book_img_label = tk.Label(book_window, image=book_img_tk, bg="#FAF9F6")
+        book_img_label.image = book_img_tk  # Keep a reference to avoid garbage collection
+        book_img_label.pack(pady=10)
+    except Exception as e:
+        tk.Label(book_window, text="Image Not Found", font=("Arial", 12), bg="#FAF9F6", fg="red").pack(pady=10)
+
+    # Close Button
+    tk.Button(book_window, text="Close", font=("Arial", 12), bg="red", fg="white", command=book_window.destroy).pack(pady=20)
+
+
+def populate_books(parent_frame, books, row_start=0, section_title="Books"):
+    """Populate books in the parent frame with a clickable button for details."""
+    tk.Label(parent_frame, text=section_title, font=("Arial", 14, "bold"), bg="#FAF9F6").grid(
+        row=row_start, column=0, columnspan=4, pady=10
+    )
+    for idx, book in enumerate(books):
+        col = idx % 4  # Arrange books in 4 columns
+        row = row_start + 1 + (idx // 4)
+
+        # Book Frame
+        book_frame = tk.Frame(parent_frame, bg="#FFFFFF", bd=2, relief="groove")
+        book_frame.grid(row=row, column=col, padx=10, pady=10)
+
+        # Book Image
+        try:
+            book_img = Image.open(book['image']).resize((80, 100))
+            book_img_tk = ImageTk.PhotoImage(book_img)
+            book_img_label = tk.Label(book_frame, image=book_img_tk, bg="#FFFFFF")
+            book_img_label.image = book_img_tk  # Keep a reference to avoid garbage collection
+            book_img_label.pack(pady=5)
+        except Exception as e:
+            tk.Label(book_frame, text="Image\nNot Found", font=("Arial", 10), bg="#FFFFFF", fg="red").pack(pady=5)
+
+        # Book Button
+        book_btn = tk.Button(
+            book_frame,
+            text="Details",
+            font=("Arial", 10),
+            bg="#4CAF50",
+            fg="white",
+            command=lambda b=book: show_book_details(b),  # Pass the book data to the function
+        )
+        book_btn.pack(pady=5)
+
+
 def create_main_app():
     global root
     root = tk.Tk()
     root.title("Book Store App")
     root.geometry("1200x800")
     root.configure(bg="#FAF9F6")
-    
+
     # Sidebar
     sidebar = tk.Frame(root, bg="#FCE6C9", width=250)
     sidebar.pack(side="left", fill="y")
@@ -296,7 +361,7 @@ def create_main_app():
     for item in menu_items:
         icon = Image.open(item["icon"]).resize((20, 20))
         icon_tk = ImageTk.PhotoImage(icon)
-        
+
         btn = tk.Button(
             sidebar,
             text=item["name"],
@@ -307,18 +372,11 @@ def create_main_app():
             anchor="w",
             relief="flat",
             padx=20,
-            activebackground='#FCE6C9',
-            command=lambda name=item["name"]: show_profile_page(main_frame) if name == "Profile" else (
-                show_home_page(main_frame) if name == "Home" else (
-                    show_page(show_settings_page, main_frame) if name== "Settings" else (
-                        show_cart_page(main_frame)if name == "Cart" else None
-                    )
-                )
-            )
+            activebackground="#FCE6C9",
         )
         btn.image = icon_tk  # Keep a reference to prevent garbage collection
         btn.pack(fill="x", pady=5)
-    
+
     # Main Content
     popular_books = [
         {"title": "It Starts with Us", "author": "Colleen Hoover", "rating": 4, "image": "books-piled-.png"},
@@ -326,7 +384,7 @@ def create_main_app():
         {"title": "The Thursday Murder Club", "author": "Richard Osman", "rating": 4, "image": "books-piled-.png"},
         {"title": "Normal People", "author": "Sally Rooney", "rating": 3, "image": "books-piled-.png"},
         {"title": "Atomic Habits", "author": "James Clear", "rating": 5, "image": "books-piled-.png"},
-    ]    
+    ]
     recommended_books = [
         {"title": "Book A", "author": "Author A", "rating": 5, "image": "books-piled-.png"},
         {"title": "Book B", "author": "Author B", "rating": 4, "image": "books-piled-.png"},
