@@ -41,7 +41,8 @@ def create_database():
             Order_ID INTEGER PRIMARY KEY AUTOINCREMENT,
             Order_Date TEXT NOT NULL,
             Delivery_Date TEXT,
-            Total_Cost REAL NOT NULL
+            Total_Cost REAL NOT NULL,
+            Quantity INTEGER NOT NULL
         )
     ''')
         # Shipping & Delivery Table
