@@ -1,10 +1,10 @@
 import sqlite3
 import tkinter as tk
+from tkinter import ttk
 from PIL import Image, ImageTk
 from tkinter import simpledialog, messagebox, filedialog
 import os
 from get_balance import get_balance
-
 def show_profile_page(main_frame, username):
     # Clear the main frame
     for widget in main_frame.winfo_children():
@@ -70,12 +70,9 @@ def show_profile_page(main_frame, username):
     update_image_button.pack(pady=10)
 
     # User Info
-    user_name = username  # Example username passed to the function
-    user_id = "12345"  # Example user ID
     user_balance = tk.DoubleVar(value=get_balance(username))  # Fetch balance using the get_balance function
 
-    tk.Label(profile_frame, text=user_name, font=("Arial", 16, "bold"), bg="#FAF9F6").pack(pady=5)
-    tk.Label(profile_frame, text=f"User ID: {user_id}", font=("Arial", 12), bg="#FAF9F6", fg="gray").pack(pady=5)
+    tk.Label(profile_frame, text=username, font=("Arial", 16, "bold"), bg="#FAF9F6").pack(pady=5)
     balance_label = tk.Label(profile_frame, text=f"Balance: {user_balance.get()}$", font=("Arial", 12, "bold"), bg="#FAF9F6")
     balance_label.pack(pady=10)
 
@@ -103,4 +100,48 @@ def show_profile_page(main_frame, username):
     )
     add_balance_button.pack(pady=20)
 
+    # Function to display orders
+    def display_orders():
+        cursor.execute("SELECT Order_ID, Order_Date, Total_Cost FROM Orders WHERE user_id = (SELECT id FROM users WHERE username = ?)", (username,))
+        orders = cursor.fetchall()
+
+        if not orders:
+            messagebox.showinfo("No Orders", "You have not placed any orders yet.")
+            return
+
+        # Dropdown to select an order
+        order_selection_frame = tk.Frame(profile_frame, bg="#FAF9F6")
+        order_selection_frame.pack(pady=10)
+
+        tk.Label(order_selection_frame, text="Your Orders:", font=("Arial", 12), bg="#FAF9F6").pack(side="left", padx=5)
+
+        order_var = tk.StringVar()
+        order_dropdown = ttk.Combobox(order_selection_frame, textvariable=order_var, state="readonly", width=50)
+        order_dropdown['values'] = [f"Order ID: {order[0]} | Date: {order[1]} | Total: ${order[2]:.2f}" for order in orders]
+        order_dropdown.pack(side="left", padx=5)
+
+        def view_order_details():
+            selected_order = order_var.get()
+            if not selected_order:
+                messagebox.showwarning("No Selection", "Please select an order to view details.")
+                return
+
+            selected_order_id = int(selected_order.split()[2])  # Extract the Order_ID
+            cursor.execute("SELECT * FROM Orders WHERE Order_ID = ?", (selected_order_id,))
+            order_details = cursor.fetchone()
+
+            if order_details:
+                details_message = "\n".join([f"{col}: {val}" for col, val in zip([desc[0] for desc in cursor.description], order_details)])
+                messagebox.showinfo("Order Details", details_message)
+
+        view_details_button = tk.Button(order_selection_frame, text="View Details", font=("Arial", 12), bg="#FFC107", fg="black", command=view_order_details)
+        view_details_button.pack(side="left", padx=5)
+
+    # Display Orders Button
+    display_orders_button = tk.Button(
+        profile_frame, text="Display My Orders", font=("Arial", 12), bg="#673AB7", fg="white", command=display_orders
+    )
+    display_orders_button.pack(pady=20)
+
     # Close database connection
+    # conn.close()

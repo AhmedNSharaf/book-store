@@ -3,6 +3,7 @@ import tkinter as tk
 from PIL import Image, ImageTk
 
 from setting import show_page , show_settings_page
+
 #from cart_page import show_cart_page
 from cart_page import *
 
@@ -107,7 +108,7 @@ def admin_sign_in():
 
 # Function to handle User Sign In
 def user_sign_in():
-    global current_window
+    global current_window, current_user_id  # Declare the global variable
     try:
         sign_in_window.destroy()  # Close the previous window
         global user_sign_in_window
@@ -126,19 +127,25 @@ def user_sign_in():
         user_password_entry.pack(pady=5)
 
         def handle_user_sign_in():
-            global user 
+            global user, current_user_id
             username = user_username_entry.get()
             user = username
             password = user_password_entry.get()
+            conn = sqlite3.connect('user_data.db')
+            cursor = conn.cursor()
+            cursor.execute('SELECT id FROM Users WHERE Username = ? AND Password = ?', (username, password))
+            result = cursor.fetchone()
+            conn.close()
 
-            # Check if the entered credentials match the ones in the database
-            if check_user_credentials(username, password):
+            # Check if a matching user exists
+            if result:
+                current_user_id = result[0]  # Store the user ID in the global variable
+                print(f"User ID: {current_user_id}")
                 print("User Sign In successful")
-                open_main_app()
+                open_main_app()  # Navigate to the main application
             else:
-                messagebox.showerror("error","Invalid username or password. Try again.")
+                messagebox.showerror("Error", "Invalid username or password. Try again.")
                 print("Invalid credentials. Try again.")
-                
 
         sign_in_btn = tk.Button(user_sign_in_window, text="Sign In", font=("Arial", 12), bg="#FF5722", fg="white", width=20, command=handle_user_sign_in)
         sign_in_btn.pack(pady=20)
@@ -199,7 +206,7 @@ def open_sign_up():
         new_password_entry.pack(pady=5)
 
         def handle_sign_up():
-            global user
+            global user, current_user_id
             new_username = new_username_entry.get()
             user = new_username
             new_password = new_password_entry.get()
@@ -219,6 +226,13 @@ def open_sign_up():
                 else:
                 # Insert the new user data into the database
                     insert_user(new_username, new_password)
+                    conn = sqlite3.connect('user_data.db')
+                    cursor = conn.cursor()
+                    cursor.execute('SELECT id FROM Users WHERE Username = ? AND Password = ?', (new_username, new_password))
+                    result = cursor.fetchone()
+                    conn.close()
+                    current_user_id = result[0]  # Store the user ID in the global variable
+                    print(f"User ID: {current_user_id}")
                     open_main_app()
             # Check if the username already exists
         sign_up_btn = tk.Button(sign_up_window, text="Sign Up", font=("Arial", 12), bg="#2196F3", fg="white", width=20, command=handle_sign_up)
@@ -335,7 +349,7 @@ def create_main_app():
             command=lambda name=item["name"]: show_profile_page(main_frame, user) if name == "Profile" else (
                 show_home_page(main_frame) if name == "Home" else (
                     show_page(show_settings_page, main_frame) if name == "Settings" else (
-                        show_cart_page(main_frame) if name == "Cart" else None
+                        show_cart_page(main_frame,current_user_id) if name == "Cart" else None
                     )
                 )
             )

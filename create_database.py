@@ -46,7 +46,7 @@ def create_database():
             Delivery_Date TEXT,
             Total_Cost REAL NOT NULL,
             Done BOOLEAN DEFAULT 0,
-            Quantity INTEGER ,
+            Quantity INTEGER,
             first_name TEXT,
             last_name TEXT,
             email TEXT,
@@ -56,9 +56,11 @@ def create_database():
             phone_code TEXT,
             phone_number TEXT,
             payment_method TEXT,
-            discount_code TEXT
+            discount_code TEXT,
+            user_id INTEGER,  -- Add the user_id column
+            FOREIGN KEY (user_id) REFERENCES users (id)  -- Reference the id column in Users table
         )
-    ''')
+''')
     
         # Shipping & Delivery Table
     cursor.execute('''
