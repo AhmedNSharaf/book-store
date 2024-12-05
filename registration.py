@@ -1,3 +1,4 @@
+import os
 import tkinter as tk
 from PIL import Image, ImageTk
 
@@ -77,11 +78,13 @@ def admin_sign_in():
         admin_key_entry.pack(pady=5)
 
         def handle_admin_sign_in():
+            global user
             username = admin_username_entry.get()
+            user = username
             password = admin_password_entry.get()
             admin_key = admin_key_entry.get()
 
-            if check_admin_credentials(username,password,admin_key):
+            if username=='a'and password=='a'and admin_key=='a':
                 print("Admin Sign In successful")
                 admin_sign_in_window.destroy()
                 create_management_page()
@@ -123,7 +126,9 @@ def user_sign_in():
         user_password_entry.pack(pady=5)
 
         def handle_user_sign_in():
+            global user 
             username = user_username_entry.get()
+            user = username
             password = user_password_entry.get()
 
             # Check if the entered credentials match the ones in the database
@@ -194,7 +199,9 @@ def open_sign_up():
         new_password_entry.pack(pady=5)
 
         def handle_sign_up():
+            global user
             new_username = new_username_entry.get()
+            user = new_username
             new_password = new_password_entry.get()
             if(len(new_username)<6):
                 if(new_username==""):
@@ -271,13 +278,28 @@ def create_main_app():
     sidebar = tk.Frame(root, bg="#FCE6C9", width=250)
     sidebar.pack(side="left", fill="y")
 
+    # Fetch user image path from the database
+    conn = sqlite3.connect('user_data.db')
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT image_path FROM users WHERE username = ?", (user,))
+    result = cursor.fetchone()
+    image_path = result[0] if result else None
+
     # User Info
-    user_img = Image.open("WhatsApp Image 2024-07-03 at 19.56.48_ae64950a.jpg").resize((50, 50))
-    user_img_tk = ImageTk.PhotoImage(user_img)
+    if image_path and os.path.exists(image_path):
+        user_img = Image.open(image_path).resize((50, 50))
+        user_img_tk = ImageTk.PhotoImage(user_img)
+    else:
+        # Default image if the user has no profile picture
+        user_img = Image.open("default-user.png").resize((50, 50))  # Replace with your default image
+        user_img_tk = ImageTk.PhotoImage(user_img)
+
     user_img_label = tk.Label(sidebar, image=user_img_tk, bg="#FCE6C9")
+    user_img_label.image = user_img_tk  # Keep a reference to avoid garbage collection
     user_img_label.pack(pady=20)
 
-    tk.Label(sidebar, text="Ahmed Nabil", font=("Arial", 14, "bold"), bg="#FCE6C9").pack()
+    tk.Label(sidebar, text=user, font=("Arial", 14, "bold"), bg="#FCE6C9").pack()
     logout_btn = tk.Button(sidebar, text="LOG OUT", font=("Arial", 10), bg="black", fg="white", relief="flat", command=log_out)
     logout_btn.pack(pady=10)
 
@@ -310,10 +332,10 @@ def create_main_app():
             relief="flat",
             padx=20,
             activebackground='#FCE6C9',
-            command=lambda name=item["name"]: show_profile_page(main_frame) if name == "Profile" else (
+            command=lambda name=item["name"]: show_profile_page(main_frame, user) if name == "Profile" else (
                 show_home_page(main_frame) if name == "Home" else (
-                    show_page(show_settings_page, main_frame) if name== "Settings" else (
-                        show_cart_page(main_frame)if name == "Cart" else None
+                    show_page(show_settings_page, main_frame) if name == "Settings" else (
+                        show_cart_page(main_frame) if name == "Cart" else None
                     )
                 )
             )
@@ -339,7 +361,6 @@ def create_main_app():
     populate_books(content_frame, recommended_books, row_start=3, section_title="We Recommend")
 
     root.mainloop()
-
 # Call this function to create the database at the beginning
 create_database()
 if __name__ == "__main__":

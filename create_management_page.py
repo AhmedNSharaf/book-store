@@ -24,11 +24,11 @@ def add_book():
         isbn = isbn_entry.get()
         title = title_entry.get()
         author = author_entry.get()
-        genre = genre_entry.get()
-        publication = publication_entry.get()
+        # genre = genre_entry.get()
+        # publication = publication_entry.get()
         price = float(price_entry.get())
-        query = '''INSERT INTO Books (ISBN, Title, Author, Genre, Publication, Price) VALUES (?, ?, ?, ?, ?, ?)'''
-        execute_query(query, (isbn, title, author, genre, publication, price))
+        query = '''INSERT INTO Books (ISBN, Title, Author, Price) VALUES (?, ?, ?, ?)'''
+        execute_query(query, (isbn, title, author, price))
         messagebox.showinfo("Success", "Book Added Successfully!")
         add_book_window.destroy()
 
@@ -48,13 +48,13 @@ def add_book():
     author_entry = tk.Entry(add_book_window)
     author_entry.pack()
 
-    tk.Label(add_book_window, text="Genre:").pack()
-    genre_entry = tk.Entry(add_book_window)
-    genre_entry.pack()
+    # tk.Label(add_book_window, text="Genre:").pack()
+    # genre_entry = tk.Entry(add_book_window)
+    # genre_entry.pack()
 
-    tk.Label(add_book_window, text="Publication:").pack()
-    publication_entry = tk.Entry(add_book_window)
-    publication_entry.pack()
+    # tk.Label(add_book_window, text="Publication:").pack()
+    # publication_entry = tk.Entry(add_book_window)
+    # publication_entry.pack()
 
     tk.Label(add_book_window, text="Price:").pack()
     price_entry = tk.Entry(add_book_window)

@@ -13,7 +13,8 @@ def create_database():
                         email TEXT,
                         balance REAL,
                         Purchase_Hist TEXT,
-                        Shipping_Addr TEXT
+                        Shipping_Addr TEXT,
+                        image_path TEXT
                         )''')
     cursor.execute('''
                     CREATE TABLE IF NOT EXISTS admins(
