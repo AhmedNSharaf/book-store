@@ -21,21 +21,23 @@ def create_database():
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         username TEXT NOT NULL,
                         password TEXT NOT NULL,
+                        email TEXT,
                         admin_key TEXT NOT NULL
                     )
                     ''')
     # Books Table
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS Books (
-            ISBN TEXT PRIMARY KEY,
-            Title TEXT NOT NULL,
-            Author TEXT NOT NULL,
-            Genre TEXT,
-            Publication TEXT,
-            Price REAL,
-            Date_Last_Purchased TEXT
-        )
-    ''')
+                    CREATE TABLE IF NOT EXISTS Books (
+                        ISBN TEXT PRIMARY KEY,
+                        Title TEXT NOT NULL,
+                        Category TEXT,
+                        Author TEXT NOT NULL,
+                        Genre TEXT,
+                        Publication TEXT,
+                        Price REAL,
+                        Date_Last_Purchased TEXT
+                    )
+                ''')
     # Orders Table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS Orders (
@@ -43,9 +45,21 @@ def create_database():
             Order_Date TEXT NOT NULL,
             Delivery_Date TEXT,
             Total_Cost REAL NOT NULL,
-            Quantity INTEGER NOT NULL
+            Done BOOLEAN DEFAULT 0,
+            Quantity INTEGER ,
+            first_name TEXT,
+            last_name TEXT,
+            email TEXT,
+            address TEXT,
+            governorate TEXT,
+            country TEXT,
+            phone_code TEXT,
+            phone_number TEXT,
+            payment_method TEXT,
+            discount_code TEXT
         )
     ''')
+    
         # Shipping & Delivery Table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS Shipping_Delivery (

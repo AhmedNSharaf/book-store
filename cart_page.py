@@ -193,33 +193,6 @@ import tkinter as tk
 from tkinter import messagebox, ttk
 
 
-def create_database():
-    # Create necessary tables if they don't exist
-    conn = sqlite3.connect('user_data.db')
-    cursor = conn.cursor()
-
-    # Create Books table
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS Books (
-            ISBN TEXT PRIMARY KEY,
-            Title TEXT NOT NULL,
-            Author TEXT,
-            Price REAL NOT NULL
-        )
-    ''')
-
-    # Create Orders table
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS Orders (
-            Order_ID INTEGER PRIMARY KEY AUTOINCREMENT,
-            Order_Date TEXT NOT NULL,
-            Total_Cost REAL NOT NULL,
-            Quantity INTEGER NOT NULL
-        )
-    ''')
-
-    conn.commit()
-    conn.close()
 
 
 def create_cart_table():
@@ -402,5 +375,4 @@ def show_cart_page(main_frame):
 
 
 # Create the database and cart table
-create_database()
 create_cart_table()

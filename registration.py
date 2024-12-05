@@ -6,7 +6,7 @@ from setting import show_page , show_settings_page
 #from cart_page import show_cart_page
 from cart_page import *
 
-from create_management_page import create_management_page
+from create_management_page_original import create_management_page
 
 # Global variable to track the current window
 current_window = None
@@ -292,7 +292,7 @@ def create_main_app():
         user_img_tk = ImageTk.PhotoImage(user_img)
     else:
         # Default image if the user has no profile picture
-        user_img = Image.open("default-user.png").resize((50, 50))  # Replace with your default image
+        user_img = Image.open("icons/user.png").resize((50, 50))  # Replace with your default image
         user_img_tk = ImageTk.PhotoImage(user_img)
 
     user_img_label = tk.Label(sidebar, image=user_img_tk, bg="#FCE6C9")

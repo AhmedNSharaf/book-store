@@ -24,11 +24,11 @@ def add_book():
         isbn = isbn_entry.get()
         title = title_entry.get()
         author = author_entry.get()
-        # genre = genre_entry.get()
-        # publication = publication_entry.get()
+        category = category_entry.get()
+        publication = publication_entry.get()
         price = float(price_entry.get())
-        query = '''INSERT INTO Books (ISBN, Title, Author, Price) VALUES (?, ?, ?, ?)'''
-        execute_query(query, (isbn, title, author, price))
+        query = '''INSERT INTO Books (ISBN, Title, Author, Price,category,Publication) VALUES (?, ?, ?, ?,?,?)'''
+        execute_query(query, (isbn, title, author, price,category,publication))
         messagebox.showinfo("Success", "Book Added Successfully!")
         add_book_window.destroy()
 
@@ -48,13 +48,13 @@ def add_book():
     author_entry = tk.Entry(add_book_window)
     author_entry.pack()
 
-    # tk.Label(add_book_window, text="Genre:").pack()
-    # genre_entry = tk.Entry(add_book_window)
-    # genre_entry.pack()
+    tk.Label(add_book_window, text="Category:").pack()
+    category_entry = tk.Entry(add_book_window)
+    category_entry.pack()
 
-    # tk.Label(add_book_window, text="Publication:").pack()
-    # publication_entry = tk.Entry(add_book_window)
-    # publication_entry.pack()
+    tk.Label(add_book_window, text="Publication:").pack()
+    publication_entry = tk.Entry(add_book_window)
+    publication_entry.pack()
 
     tk.Label(add_book_window, text="Price:").pack()
     price_entry = tk.Entry(add_book_window)
@@ -201,11 +201,11 @@ def create_admin_user():
 # Create Order
 def create_order():
     def submit():
-        order_date = order_date_entry.get()
+        # order_date = order_date_entry.get()
         delivery_date = delivery_date_entry.get()
         total_cost = float(total_cost_entry.get())
-        query = '''INSERT INTO Orders (Order_Date, Delivery_Date, Total_Cost) VALUES (?, ?, ?)'''
-        execute_query(query, (order_date, delivery_date, total_cost))
+        query = '''INSERT INTO Orders (Order_Date, Delivery_Date, Total_Cost) VALUES (DATE("now"), ?, ?)'''
+        execute_query(query, ( delivery_date, total_cost))
         messagebox.showinfo("Success", "Order Created Successfully!")
         create_order_window.destroy()
 
@@ -214,9 +214,9 @@ def create_order():
     center_window(create_order_window, 400, 250)
 
 
-    tk.Label(create_order_window, text="Order Date:").pack()
-    order_date_entry = tk.Entry(create_order_window)
-    order_date_entry.pack()
+    # tk.Label(create_order_window, text="Order Date:").pack()
+    # order_date_entry = tk.Entry(create_order_window)
+    # order_date_entry.pack()
 
     tk.Label(create_order_window, text="Delivery Date:").pack()
     delivery_date_entry = tk.Entry(create_order_window)
