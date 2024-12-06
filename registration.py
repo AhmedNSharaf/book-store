@@ -222,6 +222,7 @@ def open_sign_up():
                     messagebox.showerror("error","password can't be less than 6 characters")
             else:
                 if user_exists(new_username):
+                    messagebox.showwarning("Sign up error","Username already exists. Please choose a different username.")
                     print("Username already exists. Please choose a different username.")
                 else:
                 # Insert the new user data into the database
