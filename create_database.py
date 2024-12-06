@@ -14,6 +14,7 @@ def create_database():
                         balance REAL,
                         Purchase_Hist TEXT,
                         Shipping_Addr TEXT,
+                        payment_method TEXT,
                         image_path TEXT
                         )''')
     cursor.execute('''

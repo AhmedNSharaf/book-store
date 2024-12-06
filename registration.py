@@ -2,7 +2,7 @@ import os
 import tkinter as tk
 from PIL import Image, ImageTk
 
-from setting import show_page , show_settings_page
+from setting_esraa import setting_page
 
 #from cart_page import show_cart_page
 from cart_page import *
@@ -349,7 +349,7 @@ def create_main_app():
             activebackground='#FCE6C9',
             command=lambda name=item["name"]: show_profile_page(main_frame, user) if name == "Profile" else (
                 show_home_page(main_frame) if name == "Home" else (
-                    show_page(show_settings_page, main_frame) if name == "Settings" else (
+                    setting_page( main_frame,user) if name == "Settings" else (
                         show_cart_page(main_frame,current_user_id) if name == "Cart" else None
                     )
                 )
