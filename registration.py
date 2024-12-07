@@ -8,7 +8,7 @@ from setting_esraa import setting_page
 from cart_page import *
 
 from create_management_page_original import create_management_page
-
+from category import show_category_page
 # Global variable to track the current window
 current_window = None
 
@@ -349,8 +349,9 @@ def create_main_app():
             activebackground='#FCE6C9',
             command=lambda name=item["name"]: show_profile_page(main_frame, user) if name == "Profile" else (
                 show_home_page(main_frame) if name == "Home" else (
-                    setting_page( main_frame,user) if name == "Settings" else (
-                        show_cart_page(main_frame,current_user_id) if name == "Cart" else None
+                    setting_page( main_frame,user,current_user_id) if name == "Settings" else (
+                        show_cart_page(main_frame,current_user_id) if name == "Cart" else (
+                            show_category_page(main_frame)if name=="Categories"else None)
                     )
                 )
             )

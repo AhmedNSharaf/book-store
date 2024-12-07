@@ -1,7 +1,11 @@
 import sqlite3
 import tkinter as tk
 from tkinter import messagebox, ttk
+from tkinter import filedialog
 from center_window import center_window
+from PIL import Image, ImageTk
+import os
+
 
 DATABASE = 'user_data.db'
 
@@ -59,16 +63,48 @@ def create_management_page():
             isbn = isbn_entry.get()
             title = title_entry.get()
             author = author_entry.get()
-            category = category_entry.get()
+            category = category_combobox.get()  # Get the selected category from the combo box
             publication = publication_entry.get()
             price = price_entry.get()
-            query = '''INSERT INTO Books (ISBN, Title, Author, category, Publication, Price) VALUES (?, ?, ?, ?, ?, ?)'''
-            execute_query(query, (isbn, title, author, category, publication, price))
+            image_path = book_cover_path  # Use the selected image path
+
+            # Check if all fields are filled
+            if not isbn or not title or not author or not category or not publication or not price or not image_path:
+                messagebox.showerror("Error", "All fields must be filled in!")
+                return
+
+            query = '''INSERT INTO Books (ISBN, Title, Author, category, Publication, Price, image_path) 
+                        VALUES (?, ?, ?, ?, ?, ?, ?)'''
+            execute_query(query, (isbn, title, author, category, publication, price, image_path))
             messagebox.showinfo("Success", "Book added successfully!")
             clear_main_area()
 
+        def upload_book_cover():
+            # Open a file dialog to select an image file
+            file_path = filedialog.askopenfilename(
+                title="Select Book Cover Image",
+                filetypes=[("Image files", "*.jpg *.jpeg *.png *.gif")]
+            )
+            if file_path:
+                # Load the image and display it
+                try:
+                    img = Image.open(file_path)
+                    img = img.resize((150, 200))  # Resize the image to fit the label
+                    img_tk = ImageTk.PhotoImage(img)
+
+                    # Display the image in the label
+                    book_cover_label.config(image=img_tk)
+                    book_cover_label.image = img_tk  # Keep a reference to avoid garbage collection
+
+                    # Store the image path to be used later
+                    global book_cover_path
+                    book_cover_path = file_path
+                except Exception as e:
+                    messagebox.showerror("Error", f"Could not load the image: {e}")
+
         clear_main_area()
         tk.Label(main_area, text="Add New Book", font=("Arial", 16), bg="#ecf0f1").pack(pady=8)
+        
         tk.Label(main_area, text="ISBN:").pack()
         isbn_entry = tk.Entry(main_area)
         isbn_entry.pack()
@@ -82,8 +118,10 @@ def create_management_page():
         author_entry.pack()
 
         tk.Label(main_area, text="Category:").pack()
-        category_entry = tk.Entry(main_area)
-        category_entry.pack()
+        # Create a list of categories
+        category_options = ["Fiction", "Non-fiction", "Science", "History", "Biography", "Mystery", "Fantasy"]
+        category_combobox = ttk.Combobox(main_area, values=category_options)
+        category_combobox.pack()
 
         tk.Label(main_area, text="Publication:").pack()
         publication_entry = tk.Entry(main_area)
@@ -93,8 +131,15 @@ def create_management_page():
         price_entry = tk.Entry(main_area)
         price_entry.pack()
 
-        tk.Button(main_area, text="Submit", bg="#1abc9c", command=submit).pack(pady=8)
+        # Add a button to upload book cover
+        upload_cover_button = tk.Button(main_area, text="Upload Book Cover", bg="#3498db", fg="white", command=upload_book_cover)
+        upload_cover_button.pack(pady=8)
 
+        # Label to display the selected book cover
+        book_cover_label = tk.Label(main_area, text="No cover selected", bg="#ecf0f1")
+        book_cover_label.pack(pady=8)
+
+        tk.Button(main_area, text="Submit", bg="#1abc9c", command=submit).pack(pady=8)
     # Remove Book Functionality
     def remove_book():
         def submit():

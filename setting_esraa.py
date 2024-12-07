@@ -1,12 +1,14 @@
-def setting_page(main_frame,user):
+def setting_page(main_frame,user,userr_id):
     import sqlite3
     import tkinter as tk
     from tkinter import messagebox
     import re  # For email validation
     from create_management_page import execute_query
     # from global_var import user_instance
-    global user_instance
-    user_instance = user
+    global user_instance,current_user_id
+    user_instance = user  
+    current_user_id =userr_id
+    
 
     def get_user_data(user_id):
         global user
@@ -63,7 +65,7 @@ def setting_page(main_frame,user):
                   command=lambda: save_account_changes(user_id, old_username_var, old_password_var, new_username_var, new_password_var)).pack(pady=(20, 10), fill="x", padx=10)
 
         tk.Button(update_frame, text="Back", font=("Arial", 14), bg="#FF5722", fg="white",
-                  command=lambda: setting_page(main_frame,user)).pack(pady=4, fill="x", padx=10)
+                  command=lambda: setting_page(main_frame,user,userr_id)).pack(pady=4, fill="x", padx=10)
 
     def save_account_changes(user_id, old_username_var, old_password_var, new_username_var, new_password_var):
         old_username = old_username_var.get()
@@ -154,7 +156,7 @@ def setting_page(main_frame,user):
             pady=(10, 10), fill="x", padx=10)
 
         tk.Button(payment_frame, text="Back", font=("Arial", 14), bg="#FF5722", fg="white",
-                command=lambda: setting_page(main_frame, user)).pack(pady=4, fill="x", padx=10)
+                command=lambda: setting_page(main_frame, user,userr_id)).pack(pady=4, fill="x", padx=10)
 
 
     def get_payment_methods():
@@ -179,7 +181,7 @@ def setting_page(main_frame,user):
             messagebox.showerror("Error", "Payment method cannot be empty!")
     # Main application loop
     
-    user_id = 1  # Replace with dynamic user_id
+    user_id = current_user_id  # Replace with dynamic user_id
     show_settings_page(main_frame, user_id)
 
 

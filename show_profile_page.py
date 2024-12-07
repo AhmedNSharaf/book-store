@@ -101,41 +101,80 @@ def show_profile_page(main_frame, username):
     add_balance_button.pack(pady=20)
 
     # Function to display orders
+    # Function to display orders in a scrollable frame
     def display_orders():
-        cursor.execute("SELECT Order_ID, Order_Date, Total_Cost FROM Orders WHERE user_id = (SELECT id FROM users WHERE username = ?)", (username,))
+        # Fetch user orders
+        cursor.execute("SELECT Order_ID, Order_Date, Delivery_Date,Total_Cost FROM Orders WHERE user_id = (SELECT id FROM users WHERE username = ?)", (username,))
         orders = cursor.fetchall()
 
         if not orders:
-            messagebox.showinfo("No Orders", "You have not placed any orders yet.")
+            tk.Label(profile_frame, text="You have not placed any orders yet.", font=("Arial", 12), bg="#FAF9F6", fg="gray").pack(pady=10)
             return
 
-        # Dropdown to select an order
-        order_selection_frame = tk.Frame(profile_frame, bg="#FAF9F6")
-        order_selection_frame.pack(pady=10)
+        # Create a frame for the scrollable content
+        orders_frame = tk.Frame(profile_frame, bg="#FAF9F6")
+        orders_frame.pack(fill="both", expand=True, pady=10)
 
-        tk.Label(order_selection_frame, text="Your Orders:", font=("Arial", 12), bg="#FAF9F6").pack(side="left", padx=5)
+        # Create a canvas for horizontal scrolling
+        canvas = tk.Canvas(orders_frame, bg="#FAF9F6", highlightthickness=0)
+        canvas.pack(side="top", fill="both", expand=True)
 
-        order_var = tk.StringVar()
-        order_dropdown = ttk.Combobox(order_selection_frame, textvariable=order_var, state="readonly", width=50)
-        order_dropdown['values'] = [f"Order ID: {order[0]} | Date: {order[1]} | Total: ${order[2]:.2f}" for order in orders]
-        order_dropdown.pack(side="left", padx=5)
+        # Create a frame inside the canvas to hold the cards
+        scrollable_frame = tk.Frame(canvas, bg="#FAF9F6")
 
-        def view_order_details():
-            selected_order = order_var.get()
-            if not selected_order:
-                messagebox.showwarning("No Selection", "Please select an order to view details.")
-                return
+        # Bind the canvas to the scrollable frame
+        scrollable_frame_id = canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
 
-            selected_order_id = int(selected_order.split()[2])  # Extract the Order_ID
-            cursor.execute("SELECT * FROM Orders WHERE Order_ID = ?", (selected_order_id,))
-            order_details = cursor.fetchone()
+        # Populate the scrollable frame with order cards
+        for index, order in enumerate(orders, start=1):
+            order_id, order_date,delivery_date, total_cost = order
 
-            if order_details:
-                details_message = "\n".join([f"{col}: {val}" for col, val in zip([desc[0] for desc in cursor.description], order_details)])
-                messagebox.showinfo("Order Details", details_message)
+            # Create an individual order card
+            order_card = tk.Frame(scrollable_frame, bg="#FFFFFF", bd=1, relief="solid", padx=10, pady=10, width=200, height=150)
+            order_card.grid(row=0, column=index - 1, padx=10)
 
-        view_details_button = tk.Button(order_selection_frame, text="View Details", font=("Arial", 12), bg="#FFC107", fg="black", command=view_order_details)
-        view_details_button.pack(side="left", padx=5)
+            # Display order summary in the card
+            tk.Label(order_card, text=f"Order Date: {order_date}", font=("Arial", 10, "bold"), bg="#FFFFFF").pack(anchor="w")
+            tk.Label(order_card, text=f"Delivery Date: {delivery_date}", font=("Arial", 10), bg="#FFFFFF").pack(anchor="w")
+            tk.Label(order_card, text=f"Total: ${total_cost:.2f}", font=("Arial", 10, "bold"), bg="#FFFFFF", fg="#4CAF50").pack(anchor="w")
+
+            # Add a button to view order details
+            view_details_button = tk.Button(
+                order_card, text="View Details", font=("Arial", 9), bg="#007BFF", fg="white",
+                command=lambda order_id=order_id: view_order_details(order_id)
+            )
+            view_details_button.pack(pady=5)
+
+        # Configure the canvas scroll region dynamically
+        def configure_scroll_region(event):
+            canvas.configure(scrollregion=canvas.bbox("all"))
+
+        scrollable_frame.bind("<Configure>", configure_scroll_region)
+
+        # Handle resizing of the scrollable frame dynamically
+        def resize_canvas(event):
+            canvas.itemconfig(scrollable_frame_id, height=event.height)
+
+        canvas.bind("<Configure>", resize_canvas)
+
+        # Add a horizontal scrollbar directly below the canvas
+        scrollbar = tk.Scrollbar(orders_frame, orient="horizontal", command=canvas.xview)
+        scrollbar.pack(side="bottom", fill="x")
+
+        # Connect canvas and scrollbar
+        canvas.configure(xscrollcommand=scrollbar.set)
+
+    # Function to display order details in a pop-up
+    def view_order_details(order_id):
+        cursor.execute("SELECT * FROM Orders WHERE Order_ID = ?", (order_id,))
+        order_details = cursor.fetchone()
+
+        if order_details:
+            # Create a message displaying order details
+            details_message = "\n".join([f"{col}: {val}" for col, val in zip([desc[0] for desc in cursor.description], order_details)])
+            messagebox.showinfo("Order Details", details_message)
+        else:
+            messagebox.showerror("Error", "Order details could not be retrieved.")
 
     # Display Orders Button
     display_orders_button = tk.Button(
@@ -143,5 +182,3 @@ def show_profile_page(main_frame, username):
     )
     display_orders_button.pack(pady=20)
 
-    # Close database connection
-    # conn.close()

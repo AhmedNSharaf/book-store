@@ -346,6 +346,7 @@ def show_cart_page(main_frame,current_user_id):
         phone_number = entry_phone_number.get()
         payment_method = combo_payment.get()
         discount_code = entry_discount.get()
+        
 
         if total_cost:
             if not all([first_name, last_name, email, address, governorate, country, phone_code, phone_number, payment_method]):

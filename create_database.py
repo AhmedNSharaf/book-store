@@ -29,14 +29,16 @@ def create_database():
     # Books Table
     cursor.execute('''
                     CREATE TABLE IF NOT EXISTS Books (
-                        ISBN TEXT PRIMARY KEY,
+                        BookID INTEGER PRIMARY KEY AUTOINCREMENT,
+                        ISBN TEXT ,
                         Title TEXT NOT NULL,
                         Category TEXT,
                         Author TEXT NOT NULL,
                         Genre TEXT,
                         Publication TEXT,
                         Price REAL,
-                        Date_Last_Purchased TEXT
+                        Date_Last_Purchased TEXT,
+                        image_path TEXT
                     )
                 ''')
     # Orders Table
