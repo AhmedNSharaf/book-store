@@ -158,11 +158,17 @@ def create_management_page():
         tk.Button(main_area, text="Submit", bg="#1abc9c", command=submit).pack(pady=8)
 
     # Update Book Functionality
+    
     def update_book():
         def submit():
             isbn = isbn_entry.get()
-            field = field_entry.get()
+            field = field_combobox.get()  # Get selected field from combobox
             value = value_entry.get()
+            
+            if not isbn or not field or not value:
+                messagebox.showwarning("Input Error", "Please fill in all fields.")
+                return
+            
             query = f'''UPDATE Books SET {field} = ? WHERE ISBN = ?'''
             execute_query(query, (value, isbn))
             messagebox.showinfo("Success", "Book updated successfully!")
@@ -170,14 +176,17 @@ def create_management_page():
 
         clear_main_area()
         tk.Label(main_area, text="Update Book", font=("Arial", 16), bg="#ecf0f1").pack(pady=8)
+        
         tk.Label(main_area, text="ISBN:").pack()
         isbn_entry = tk.Entry(main_area)
         isbn_entry.pack()
 
-        tk.Label(main_area, text="Field to Update (e.g., Title, Price):").pack()
-        field_entry = tk.Entry(main_area)
-        field_entry.pack()
-
+        tk.Label(main_area, text="Field to Update :").pack()
+        # Creating a dropdown for fields
+        fields = ["ISBN", "Title", "Category", "Author", "Publication", "Price"]
+        field_combobox = ttk.Combobox(main_area, values=fields,width=17)
+        field_combobox.pack()
+        
         tk.Label(main_area, text="New Value:").pack()
         value_entry = tk.Entry(main_area)
         value_entry.pack()
